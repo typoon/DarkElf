@@ -29,7 +29,7 @@ ElfFile* readElf(char *path)
     }
     
     elf->size = buffer.st_size;
-    elf->contents = (char *)malloc(sizeof(char) * elf->size);
+    elf->contents = (unsigned char *)malloc(sizeof(char) * elf->size);
     if(fread(elf->contents, 1, elf->size, elf->f) != elf->size)
     {
         printf("Cannot read file contents.\n");
@@ -78,7 +78,7 @@ char* getSectionName(ElfFile *elf, Elf32_Shdr *section)
     getElfHeader(elf, &header);
     getElfSectionHeaders(elf, &s);
 
-    str = &elf->contents[(s[header.e_shstrndx].sh_offset + section->sh_name)];
+    str = (char *)&elf->contents[(s[header.e_shstrndx].sh_offset + section->sh_name)];
 
     free(s);
 
