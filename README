@@ -1,0 +1,4 @@
+This software serves no purpose other than to learn the internals of an ELF executable (no support for shared libraries or such things for the moment, only simple executables).
+The code is still a mess and pretty much undocumented. The examples of use provided should be enough for the moment to show how something works.
+The goal in this project is to be able to insert instructions into an already defined function in the ELF binary and have it execute this code without causing any problems to the software execution.
+Feel free to give suggestions or to play around with it. :)
