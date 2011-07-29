@@ -1,6 +1,7 @@
 #ifndef DARKELF_H
 #define DARKELF_H
 
+#include <stdio.h>
 #include <elf.h>
 
 //Structs
@@ -16,5 +17,6 @@ void allocElfFile(ElfFile **elf);
 void freeElfFile(ElfFile **elf);
 
 #include "darkelfRead.h"
+#include "darkelfWrite.h"
 
 #endif

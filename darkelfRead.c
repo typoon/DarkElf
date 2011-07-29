@@ -85,6 +85,22 @@ char* getSectionName(ElfFile *elf, Elf32_Shdr *section)
     return str;
 }
 
+char* getSymbolName(ElfFile *elf, Elf32_Sym *symbol)
+{
+    char *ret;
+    Elf32_Shdr *sectionHeaders;
+    
+    getElfSectionHeaders(elf, &sectionHeaders);
+    
+    // TODO: Create a function to get the index of the .strtab section
+    // in order to properly find the name of the symbols
+    ret = (char *)&elf->contents[sectionHeaders[30].sh_offset + symbol->st_name];
+
+    free(sectionHeaders);
+    
+    return ret;
+}
+
 int getSymbolTableEntries(ElfFile *elf, Elf32_Sym **symTableEntries)
 {
     int i;
@@ -153,4 +169,28 @@ Elf32_Shdr* getSectionHeaderByName(ElfFile *elf, char *name)
     free(sections);
     
     return ret;
+}
+
+Elf32_Sym* getSymbolByName(ElfFile *elf, char *name)
+{
+    int i;
+    int totalSymbols;
+    Elf32_Sym *result = NULL;
+    Elf32_Sym *symbolTableEntries;
+    
+    totalSymbols = getSymbolTableEntries(elf, &symbolTableEntries);
+    
+    for(i = 0; i < totalSymbols; i++)
+    {
+        if(memcmp(getSymbolName(elf, &symbolTableEntries[i]), name, strlen(name)) == 0)
+        {
+            result = (Elf32_Sym *)malloc(sizeof(Elf32_Sym));
+            memcpy(result, &symbolTableEntries[i], sizeof(Elf32_Sym));
+        }
+    }
+    
+    free(symbolTableEntries);
+    
+    return result;
+    
 }

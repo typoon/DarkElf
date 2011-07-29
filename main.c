@@ -30,8 +30,10 @@ int main(int argc, char **argv)
     Elf32_Shdr *sectionHeaders;
     Elf32_Shdr *shText;
     Elf32_Sym *symTableEntries;
+    Elf32_Sym *symMain;
     int numberOfSections;
     int numberOfSymbolEntries;
+    int offset;
     char *name;
     
 
@@ -72,7 +74,7 @@ int main(int argc, char **argv)
     
     for(i = 0; i < numberOfSymbolEntries; i++)
     {
-        //printf("%d - %s\n", symTableEntries[i].st_name, &elf->contents[sectionHeaders[30].sh_offset + symTableEntries[i].st_name]);
+            printf("%d - %s [Size: %d (%08X)]\n", symTableEntries[i].st_name, &elf->contents[sectionHeaders[30].sh_offset + symTableEntries[i].st_name], symTableEntries[i].st_size, symTableEntries[i].st_value);
     }
     
     //printf("String Table size: %d - %s\n", (sectionHeaders[header.e_shstrndx-1].sh_size), elf->contents[(sectionHeaders[header.e_shstrndx-1].sh_offset) + symTableEntries[i].st_name]);
@@ -80,7 +82,7 @@ int main(int argc, char **argv)
     shText = getSectionHeaderByName(elf, ".text");
     if(shText != NULL)
     {
-        printf("Name: %s\n", getSectionName(elf, shText));
+        printf("Name: %s [Offset: %d]\n", getSectionName(elf, shText), shText->sh_offset);
         
         for(i = 0; i < shText->sh_size; i++)
         {
@@ -90,6 +92,29 @@ int main(int argc, char **argv)
         
     }
     
+    symMain = getSymbolByName(elf, "main");
+    
+    printf("Symbol main:\n");
+    printf("\tVirtual Address: %08X\n", symMain->st_value);
+    printf("\tSymbol's section offset in file: %08X\n", sectionHeaders[symMain->st_shndx].sh_offset);
+    printf("\tSymbol's section virtual address: %08X\n", sectionHeaders[symMain->st_shndx].sh_addr);
+    
+    // The virtual Address for the 'main' symbol is 080483E4
+    // The virtual Address for the '.text' section is 08048330
+    // In my opnion, it is an educated guess to assume that the offset
+    // for the 'main' symbol inside the file would be given by the following:
+    // main symbol virtual address - .text section virtual address
+    //
+    
+    offset = (symMain->st_value - sectionHeaders[symMain->st_shndx].sh_addr) + sectionHeaders[symMain->st_shndx].sh_offset;
+    
+    for(i = 0; i < symMain->st_size; i++)
+    {
+        printf("%02X ", elf->contents[offset + i]);
+    }
+    printf("\n");
+    
+    free(symMain);
     free(shText);
     free(sectionHeaders);
     free(symTableEntries);
